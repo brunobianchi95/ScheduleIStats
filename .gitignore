@@ -1,0 +1,12 @@
+bin/
+obj/
+tests/bin/
+tests/obj/
+.deps/
+*.user
+*.dll
+*.pdb
+*.log
+*.zip
+UserData/
+.vs/
