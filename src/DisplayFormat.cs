@@ -11,9 +11,10 @@ public static class DisplayFormat
         NumberDecimalSeparator = ".",
         NumberGroupSeparator = ",",
         NumberGroupSizes = new[] { 3 },
-        NumberDecimalDigits = 2
+        NumberDecimalDigits = 0
     };
 
-    public static string Money(decimal value) => "$" + value.ToString("N2", DollarNumbers);
+    public static string Money(decimal value) => "$" + value.ToString("N0", DollarNumbers);
 }
+
 

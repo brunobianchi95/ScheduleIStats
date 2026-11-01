@@ -1,8 +1,8 @@
 using ScheduleIStats;
 int checks=0;
 void Assert(bool ok,string name) { if(!ok) throw new Exception(name); Console.WriteLine("PASS "+name); checks++; }
-Assert(DisplayFormat.Money(1234.5m)=="$1,234.50","game dollars without regional culture");
-Assert(DisplayFormat.Money(0m)=="$0.00","zero money formatting");
+Assert(DisplayFormat.Money(1234.49m)=="$1,234","game dollars without regional culture");
+Assert(DisplayFormat.Money(0m)=="$0","zero money formatting");
 Sale NewSale(string id="one") => new() {Id=id,Day=1,Time=1200,Total=100,Lines=new(){new(){ProductId="og",Product="OG",Quantity=5}}};
 var data=new LedgerData();
 Assert(Ledger.Append(data,NewSale()),"accept sale");
@@ -26,4 +26,5 @@ Assert(Ledger.Load(path+".bak").Sales.Count==2,"backup remains readable");
 Assert(Ledger.Key("save1")!=Ledger.Key("save2"),"separate save identities");
 Assert(Ledger.Minute(2,100)<Ledger.Minute(2,1200),"rollback time comparison");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
+
 
