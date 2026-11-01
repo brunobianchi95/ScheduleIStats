@@ -1,9 +1,12 @@
-# Validación de la versión 0.1.0
+# Validación de la versión 0.1.1
 
-- Compilación Release x64, .NET 6: correcta, cero errores y cero advertencias.
-- 12 comprobaciones automáticas del historial: correctas (duplicados, validación de cantidades/importes, secuencias, persistencia, copia de respaldo y separación de identidades).
-- Arranque local con Schedule I 0.4.7f12 IL2CPP, MelonLoader 0.7.3 y S1API 3.2.2: S1API y ScheduleIStats cargados.
-- El registro de MelonLoader confirmó que Harmony activó la captura en RpcLogic___ProcessHandoverServerSide_3315874220.
-- Pendiente de comprobar en partida: aspecto/controles de la app, ventas del anfitrión e invitado, ventas de distribuidores, sincronización real por Steam entre dos PCs y reconexión.
+Corrección de la app que no aparecía en la versión 0.1.0:
 
-La versión se entrega como experimental para ejecutar esa prueba. No se generaron ventas ficticias ni se modificó una partida para aparentar validación.
+El registro real del juego mostró que S1API descubría StatsApp pero no podía crearla: CultureInfo.GetCultureInfo("es-AR") lanzaba CultureNotFoundException porque MelonLoader ejecuta .NET en modo de globalización invariable. La inicialización estática fallida impedía crear la pantalla y luego su ícono.
+
+- Se reemplazó esa dependencia regional por un NumberFormatInfo explícito: $1.234,50.
+- Se limita el registro de errores repetidos y se incluye el detalle completo de la excepción.
+- Compilación Release x64: correcta, cero errores y cero advertencias.
+- 14 comprobaciones automáticas correctas ejecutadas con DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1, incluido el formato español sin culturas instaladas.
+- La carga de S1API y la activación de la captura de ventas fueron comprobadas en el arranque de la versión anterior.
+- Pendiente en esta versión: reiniciar el juego y confirmar visualmente el ícono y la pantalla. Las ventas reales y la sincronización entre dos PCs siguen pendientes de validación.

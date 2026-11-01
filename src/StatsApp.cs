@@ -2,7 +2,6 @@ using S1API.PhoneApp;
 using S1API.UI;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Globalization;
 
 namespace ScheduleIStats;
 
@@ -19,8 +18,7 @@ public sealed class StatsApp : PhoneApp
     private Text? body, status, pageLabel;
     private int tab, page;
     private bool today;
-    private static readonly CultureInfo Spanish = CultureInfo.GetCultureInfo("es-AR");
-    private static string Money(decimal n) => "$" + n.ToString("N2", Spanish);
+    private static string Money(decimal n) => DisplayFormat.Money(n);
 
     protected override void OnCreatedUI(GameObject container)
     {
@@ -103,7 +101,7 @@ public sealed class StatsApp : PhoneApp
         }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.Status}\nVentas guardadas: {data.Sales.Count}\n{mod.CaptureStatus}\n\nVersión de prueba 0.1.0 · Actualización cada 3 s.\nNo importa ventas anteriores a la instalación.\nVentas de jugadores: vendedor individual aún sin identificar.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.Status}\nVentas guardadas: {data.Sales.Count}\n{mod.CaptureStatus}\n\nVersión de prueba 0.1.1 · Actualización cada 3 s.\nNo importa ventas anteriores a la instalación.\nVentas de jugadores: vendedor individual aún sin identificar.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";
@@ -121,3 +119,4 @@ public sealed class StatsApp : PhoneApp
         return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
     }
 }
+
