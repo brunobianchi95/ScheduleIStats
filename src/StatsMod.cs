@@ -10,7 +10,7 @@ using Il2CppFishNet.Object;
 using Il2CppFishNet;
 
 
-[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Schedule I Estadísticas", "0.1.1", "brunobianchi95")]
+[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Schedule I Estadísticas", "0.1.2", "brunobianchi95")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace ScheduleIStats;
@@ -52,7 +52,7 @@ public sealed class StatsMod : MelonMod
             CaptureStatus = "Captura incompatible con esta versión";
             LoggerInstance.Error("No se pudo activar la captura: " + e);
         }
-        LoggerInstance.Msg("App Estadísticas v0.1.1 cargada. Abrí el teléfono dentro de una partida.");
+        LoggerInstance.Msg("App Estadísticas v0.1.2 cargada. Abrí el teléfono dentro de una partida.");
     }
 
     public override void OnUpdate()
@@ -172,5 +172,6 @@ internal static class SalePatch
         catch (Exception e) { MelonLogger.Warning("[Estadísticas] No se pudo registrar una venta: " + e.Message); }
     }
 }
+
 
 

@@ -1,12 +1,12 @@
 # Schedule I Estadísticas
 
-Versión **0.1.1 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
+Versión **0.1.2 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
 
 Compilada contra **Schedule I 0.4.7f12, Windows x64, IL2CPP**, con **MelonLoader 0.7.3** y **S1API 3.2.2**. No usar esta DLL en la rama Mono. El anfitrión y los invitados que quieran consultar estadísticas deben instalar el mismo paquete.
 
 ## Descargar e instalar
 
-1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **ScheduleIStats-v0.1.1-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
+1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **ScheduleIStats-v0.1.2-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
 2. Cerrar Schedule I. Tener MelonLoader 0.7.3 instalado en ambas PCs.
 3. En Steam → Schedule I → Propiedades → Archivos instalados → Explorar.
 4. Extraer el ZIP y copiar **Mods** y **Plugins** dentro de esa carpeta. Si ya hay una versión de S1API, usar una sola instalación compatible: no dejar DLL antiguas duplicadas. Conservar una copia de las dependencias anteriores antes de reemplazarlas.
@@ -80,4 +80,5 @@ Este repositorio público permite leer y descargar. Solo el propietario y colabo
 - Steamworks y Unity provistos por el juego; no se redistribuyen.
 
 Mod comunitario no oficial, sin afiliación con TVGS ni Valve.
+
 

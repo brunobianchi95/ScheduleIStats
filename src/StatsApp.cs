@@ -101,7 +101,7 @@ public sealed class StatsApp : PhoneApp
         }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.Status}\nVentas guardadas: {data.Sales.Count}\n{mod.CaptureStatus}\n\nVersión de prueba 0.1.1 · Actualización cada 3 s.\nNo importa ventas anteriores a la instalación.\nVentas de jugadores: vendedor individual aún sin identificar.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.Status}\nVentas guardadas: {data.Sales.Count}\n{mod.CaptureStatus}\n\nVersión de prueba 0.1.2 · Actualización cada 3 s.\nNo importa ventas anteriores a la instalación.\nVentas de jugadores: vendedor individual aún sin identificar.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";
@@ -119,4 +119,5 @@ public sealed class StatsApp : PhoneApp
         return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
     }
 }
+
 

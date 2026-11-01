@@ -6,13 +6,14 @@ public static class DisplayFormat
 {
     // MelonLoader may run with globalization-invariant mode enabled.
     // A custom number provider works without requesting an installed culture.
-    private static readonly NumberFormatInfo SpanishNumbers = new()
+    private static readonly NumberFormatInfo DollarNumbers = new()
     {
-        NumberDecimalSeparator = ",",
-        NumberGroupSeparator = ".",
+        NumberDecimalSeparator = ".",
+        NumberGroupSeparator = ",",
         NumberGroupSizes = new[] { 3 },
         NumberDecimalDigits = 2
     };
 
-    public static string Money(decimal value) => "$" + value.ToString("N2", SpanishNumbers);
+    public static string Money(decimal value) => "$" + value.ToString("N2", DollarNumbers);
 }
+
