@@ -10,7 +10,7 @@ using Il2CppFishNet.Object;
 using Il2CppFishNet;
 
 
-[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Schedule I Estadísticas", "0.1.2", "brunobianchi95")]
+[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Schedule I Estadísticas", "0.1.3", "brunobianchi95")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace ScheduleIStats;
@@ -21,8 +21,13 @@ public sealed class StatsMod : MelonMod
     public LedgerData? Data { get; private set; }
     public string Status { get; set; } = "Esperando una partida…";
     public string CaptureStatus { get; private set; } = "Sin comprobar";
+    public string NetworkStatus { get; set; } = "Sin identificar la sala";
+    public int SyncSent { get; set; }
+    public int SyncReceived { get; set; }
+    public int DeliveriesObserved { get; set; }
     public bool Loaded => LoadManager.InstanceExists && LoadManager.Instance.IsGameLoaded;
-    public bool Host => Loaded && InstanceFinder.IsServer;
+    public bool Host => Loaded && (InstanceFinder.IsServer ||
+        (Il2CppScheduleOne.Networking.Lobby.InstanceExists && Il2CppScheduleOne.Networking.Lobby.Instance.IsHost));
     public string Root { get; private set; } = "";
     private string? path;
     private bool wasLoaded;
@@ -39,20 +44,24 @@ public sealed class StatsMod : MelonMod
         sync = new Sync(this);
         try
         {
-            var method = AccessTools.GetDeclaredMethods(typeof(Customer))
-                .Single(m => m.Name.StartsWith("RpcLogic___ProcessHandoverServerSide_") && m.GetParameters().Length == 6);
-            HarmonyInstance.Patch(method,
-                new HarmonyMethod(typeof(SalePatch), nameof(SalePatch.Prefix)),
-                new HarmonyMethod(typeof(SalePatch), nameof(SalePatch.Postfix)));
+            var methods = AccessTools.GetDeclaredMethods(typeof(Customer))
+                .Where(m => (m.Name == "ProcessHandoverServerSide" || m.Name.StartsWith("RpcLogic___ProcessHandoverServerSide_")) && m.GetParameters().Length == 6).ToArray();
+            if (methods.Length == 0) throw new MissingMethodException("No se encontró el procesamiento de entregas.");
+            foreach (var method in methods)
+            {
+                HarmonyInstance.Patch(method,
+                    new HarmonyMethod(typeof(SalePatch), nameof(SalePatch.Prefix)),
+                    finalizer: new HarmonyMethod(typeof(SalePatch), nameof(SalePatch.Finalizer)));
+                LoggerInstance.Msg("Captura preparada: " + method.Name);
+            }
             CaptureStatus = "Captura disponible (pendiente de venta)";
-            LoggerInstance.Msg("Captura preparada: " + method.Name);
         }
         catch (Exception e)
         {
             CaptureStatus = "Captura incompatible con esta versión";
             LoggerInstance.Error("No se pudo activar la captura: " + e);
         }
-        LoggerInstance.Msg("App Estadísticas v0.1.2 cargada. Abrí el teléfono dentro de una partida.");
+        LoggerInstance.Msg("App Estadísticas v0.1.3 cargada. Abrí el teléfono dentro de una partida.");
     }
 
     public override void OnUpdate()
@@ -66,14 +75,18 @@ public sealed class StatsMod : MelonMod
                 if (wasLoaded) { Data = null; path = null; diskFailed = false; sync?.Reset(); }
                 wasLoaded = false;
                 Status = "Esperando una partida…";
+                StatsApp.Current?.Refresh();
                 return;
             }
             if (!wasLoaded)
             {
                 wasLoaded = true;
-                if (Host) OpenHostLedger();
-                else Status = "Buscando el historial del anfitrión…";
+                LoggerInstance.Msg("Partida cargada · rol: " + (Host ? "anfitrión" : "invitado"));
+                Status = "Buscando el historial de la partida…";
             }
+            // Server authority may become ready after IsGameLoaded. Retry instead
+            // of permanently remaining a client with no ledger.
+            if (Host && Data == null && !diskFailed) OpenHostLedger();
             sync?.Tick();
             StatsApp.Current?.Refresh();
         }
@@ -108,6 +121,7 @@ public sealed class StatsMod : MelonMod
         Data.Name = LoadManager.Instance.ActiveSaveInfo?.OrganisationName ?? "Partida compartida";
         Persist();
         Status = "Anfitrión · historial global activo";
+        LoggerInstance.Msg("Historial global abierto. Ventas guardadas: " + Data.Sales.Count);
     }
 
     private void Persist()
@@ -137,12 +151,20 @@ public sealed class StatsMod : MelonMod
 
 internal static class SalePatch
 {
+    [ThreadStatic] private static int depth;
+    public sealed class CaptureState { public Sale? Sale; }
     public static void Prefix(Customer __instance, Il2CppSystem.Collections.Generic.List<ItemInstance> __0, bool __1, float __2,
-        ProductList __3, float __4, NetworkObject __5, out Sale? __state)
+        ProductList __3, float __4, NetworkObject __5, out CaptureState? __state)
     {
         __state = null;
         var mod = StatsMod.Instance;
-        if (mod == null || !mod.Host || !float.IsFinite(__2) || __2 < 0) return;
+        if (mod == null || !mod.Host) return;
+        __state = new CaptureState();
+        depth++;
+        if (depth > 1) return;
+        mod.DeliveriesObserved++;
+        MelonLogger.Msg("[Estadísticas/captura] Entrega observada en el anfitrión.");
+        if (!float.IsFinite(__2) || __2 < 0) return;
         try
         {
             var tm = TimeManager.Instance;
@@ -162,16 +184,21 @@ internal static class SalePatch
                 if (line != null) line.Quantity += quantity;
                 else sale.Lines.Add(new SaleLine { ProductId = id, Product = product.Name, Quantity = quantity });
             }
-            if (sale.Valid()) __state = sale;
+            if (sale.Valid()) __state.Sale = sale;
+            else MelonLogger.Warning("[Estadísticas/captura] La entrega no contiene productos o importes válidos para el historial.");
         }
         catch (Exception e) { MelonLogger.Warning("[Estadísticas] No se pudo leer una entrega: " + e.Message); }
     }
-    public static void Postfix(Sale? __state)
+    public static Exception? Finalizer(CaptureState? __state, Exception? __exception)
     {
-        try { if (__state != null) StatsMod.Instance?.Record(__state); }
+        if (__state == null) return __exception;
+        depth = Math.Max(0, depth - 1);
+        try { if (__exception == null && __state.Sale != null) StatsMod.Instance?.Record(__state.Sale); }
         catch (Exception e) { MelonLogger.Warning("[Estadísticas] No se pudo registrar una venta: " + e.Message); }
+        return __exception;
     }
 }
+
 
 
 

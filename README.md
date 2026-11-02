@@ -1,12 +1,12 @@
 # Schedule I Estadísticas
 
-Versión **0.1.2 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
+Versión **0.1.3 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
 
 Compilada contra **Schedule I 0.4.7f12, Windows x64, IL2CPP**, con **MelonLoader 0.7.3** y **S1API 3.2.2**. No usar esta DLL en la rama Mono. El anfitrión y los invitados que quieran consultar estadísticas deben instalar el mismo paquete.
 
 ## Descargar e instalar
 
-1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **ScheduleIStats-v0.1.2-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
+1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **ScheduleIStats-v0.1.3-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
 2. Cerrar Schedule I. Tener MelonLoader 0.7.3 instalado en ambas PCs.
 3. En Steam → Schedule I → Propiedades → Archivos instalados → Explorar.
 4. Extraer el ZIP y copiar **Mods** y **Plugins** dentro de esa carpeta. Si ya hay una versión de S1API, usar una sola instalación compatible: no dejar DLL antiguas duplicadas. Conservar una copia de las dependencias anteriores antes de reemplazarlas.
@@ -32,13 +32,13 @@ Si falla, conservar el archivo `MelonLoader/Latest.log` y describir cuál de est
 - App con ícono propio y pestañas **Resumen, Productos, Historial y Sincronización**.
 - Ingresos, unidades, número de operaciones y precio promedio por producto; filtro Hoy/Todo y paginación.
 - Captura en el anfitrión del procesamiento de entregas del juego. Los invitados consultan la copia sincronizada; no envían ventas inventadas al registro.
-- Sincronización incremental por Steam P2P, canal reservado 4741. Solo se aceptan paquetes de miembros de la sala, y el historial del cliente solo acepta al anfitrión. Reintentos y recuperación por secuencia al reconectar.
+- Sincronización incremental mediante datos de la sala de Steam (protocolo 2). Los invitados publican solicitudes en sus datos de miembro y el propietario publica las respuestas en los datos de sala. Reintentos y recuperación por secuencia al reconectar.
 - Historial separado por ruta de partida; escritura mediante archivo temporal y copia `.bak` del estado anterior.
 
 ## Datos y límites de esta prueba
 
 - **No se importa historial previo**: comienza con las ventas detectadas tras instalar el mod.
-- Compilación y pruebas automáticas no equivalen a una prueba real entre dos PCs. La captura nativa, la interfaz y el transporte se consideran experimentales hasta completar el procedimiento anterior.
+- Compilación y pruebas automáticas no equivalen a una prueba real entre dos PCs. El ícono ya fue confirmado por el usuario. La captura nativa y el transporte se consideran experimentales hasta completar el procedimiento anterior.
 - La entrega se registra cuando termina el método de procesamiento del anfitrión. Las rutas especiales que no pasen por ese método pueden quedar fuera. No se modifican precios, dinero, inventario ni las reglas del juego.
 - Las ventas de jugadores se etiquetan “Jugador (sin identificar)”: todavía no se distingue qué jugador vendió. Los distribuidores se identifican cuando el evento proporciona su objeto.
 - Si una operación contiene varios productos con un único pago, se conserva el total real. Para el promedio por producto se reparte por unidades y se marca **estimado**; el juego no proporciona un precio separado en ese evento.
@@ -80,5 +80,7 @@ Este repositorio público permite leer y descargar. Solo el propietario y colabo
 - Steamworks y Unity provistos por el juego; no se redistribuyen.
 
 Mod comunitario no oficial, sin afiliación con TVGS ni Valve.
+
+
 
 

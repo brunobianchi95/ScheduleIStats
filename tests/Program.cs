@@ -25,6 +25,29 @@ Assert(rejected && File.ReadAllText(path)=="broken","corrupt history fails witho
 Assert(Ledger.Load(path+".bak").Sales.Count==2,"backup remains readable");
 Assert(Ledger.Key("save1")!=Ledger.Key("save2"),"separate save identities");
 Assert(Ledger.Minute(2,100)<Ledger.Minute(2,1200),"rollback time comparison");
+var empty = new Packet { Kind="batch", LedgerId=Guid.NewGuid().ToString("N"), Count=0, After=0 };
+var replica = Replica.Apply(null,empty);
+Assert(replica != null && replica.Sales.Count==0,"empty host ledger can synchronize");
+var first=NewSale("network-one"); first.Sequence=1;
+var packet=new Packet {Kind="batch",LedgerId=empty.LedgerId,Count=1,After=0,Sales=new(){first}};
+replica=Replica.Apply(replica,packet);
+Assert(replica?.Sales.Count==1,"first network batch");
+Assert(Replica.Apply(replica,packet)==null,"reject repeated network batch");
+var second=NewSale("network-two"); second.Sequence=2;
+packet.After=1; packet.Count=2; packet.Sales=new(){second};
+var next=Replica.Apply(replica,packet);
+Assert(next?.Sales.Count==2 && replica!.Sales.Count==1,"incremental batch preserves previous snapshot");
+packet.After=3;
+Assert(Replica.Apply(replica,packet)==null,"reject sequence gap");
+packet.After=1; packet.Sales=new(){first};
+Assert(Replica.Apply(replica,packet)==null,"reject duplicate receipt and wrong sequence");
+packet.Sales=new(){second}; packet.Protocol=1;
+Assert(Replica.Apply(replica,packet)==null,"reject old network protocol");
+packet.Protocol=2; packet.Count=0;
+Assert(Replica.Apply(replica,packet)==null,"reject inconsistent total");
+var different=new Packet {Kind="batch",LedgerId=Guid.NewGuid().ToString("N"),Count=0,After=0};
+Assert(Replica.Apply(replica,different)?.Sales.Count==0,"switch save without merging histories");
+Assert(replica!.Sales.Count==1,"rejected packets do not mutate local history");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
 
 

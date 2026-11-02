@@ -71,7 +71,11 @@ public sealed class StatsApp : PhoneApp
         if (mod == null) return;
         status.text = mod.Status;
         var data = mod.Data;
-        if (data == null) { body.text = "Esperando el historial de esta partida.\nEl anfitrión también debe tener instalado el mod."; return; }
+        if (data == null)
+        {
+            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.3.\nLas ventas se registran desde la instalación.";
+            return;
+        }
         int day = Il2CppScheduleOne.GameTime.TimeManager.InstanceExists ? Il2CppScheduleOne.GameTime.TimeManager.Instance.ElapsedDays : 0;
         var sales = data.Sales.Where(s => !today || s.Day == day).ToList();
         string period = today ? $"Día {day + 1}" : "Todo el historial";
@@ -101,7 +105,7 @@ public sealed class StatsApp : PhoneApp
         }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.Status}\nVentas guardadas: {data.Sales.Count}\n{mod.CaptureStatus}\n\nVersión de prueba 0.1.2 · Actualización cada 3 s.\nNo importa ventas anteriores a la instalación.\nVentas de jugadores: vendedor individual aún sin identificar.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.3 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";

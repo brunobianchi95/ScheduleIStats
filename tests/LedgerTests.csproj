@@ -1,2 +1,3 @@
-<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net6.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><Compile Include="..\src\Ledger.cs" Link="Ledger.cs" /><Compile Include="..\src\DisplayFormat.cs" Link="DisplayFormat.cs" /></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net6.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><Compile Include="..\src\Ledger.cs" Link="Ledger.cs" /><Compile Include="..\src\DisplayFormat.cs" Link="DisplayFormat.cs" /><Compile Include="..\src\Protocol.cs" Link="Protocol.cs" /></ItemGroup></Project>
+
 
