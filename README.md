@@ -32,7 +32,7 @@ Si falla, conservar el archivo `MelonLoader/Latest.log` y describir cuál de est
 - App con ícono propio y pestañas **Resumen, Productos, Historial, Stock y Sincronización**.
 - Ingresos, unidades, número de operaciones y precio promedio por producto; filtro Hoy/Todo y paginación.
 - Captura en el anfitrión del procesamiento de entregas del juego. Los invitados consultan la copia sincronizada; no envían ventas inventadas al registro.
-- Sincronización incremental mediante datos de la sala de Steam (protocolo 3). Los invitados publican solicitudes en sus datos de miembro y el propietario publica las respuestas en los datos de sala. Reintentos y recuperación por secuencia al reconectar.
+- Sincronización incremental mediante datos de la sala de Steam (protocolo 4). Los invitados publican solicitudes en sus datos de miembro y el propietario publica las respuestas en los datos de sala. Reintentos y recuperación por secuencia al reconectar.
 - Historial separado por ruta de partida; escritura mediante archivo temporal y copia `.bak` del estado anterior.
 
 ## Datos y límites de esta prueba
@@ -91,9 +91,9 @@ Mod comunitario no oficial, sin afiliación con TVGS ni Valve.
 
 La pestaña Stock consulta cada cinco segundos los productos terminados en contenedores colocados (PlaceableStorageEntity) de propiedades propias cargadas por el anfitrión. Agrupa producto y ubicación (propiedad / nombre del contenedor), suma las unidades contenidas en los paquetes y evita contar dos veces un mismo slot.
 
-No incluye bolsillos de jugadores, inventario de distribuidores, vehículos, producción en curso ni contenedores que no sean de ese tipo. La pantalla indica la hora de la última lectura; los invitados reciben la última consulta completa del anfitrión. Los datos viajan en páginas para no exceder el límite del transporte de sala.
+Incluye además los inventarios de productos de jugadores conectados y cargados. No incluye inventario de distribuidores, vehículos, producción en curso ni otros tipos de contenedores. La pantalla indica la hora de la última lectura; los invitados reciben la última consulta completa del anfitrión. Los datos viajan en páginas para no exceder el límite del transporte de sala.
 
-Ambos deben instalar 0.1.6, porque el protocolo de sincronización pasa a 3. El historial de ventas existente y la carpeta UserData/ScheduleIStats se conservan. El archivo del mod sigue llamándose Mods/ScheduleIStats.dll para reemplazar la versión anterior sin duplicarla; el nombre visible de la app es Cravel.
+Ambos deben instalar 0.1.6, porque el protocolo de sincronización es 4. El historial de ventas existente y la carpeta UserData/ScheduleIStats se conservan. El archivo del mod sigue llamándose Mods/ScheduleIStats.dll para reemplazar la versión anterior sin duplicarla; el nombre visible de la app es Cravel.
 
 
 ## Stock por lugar en 0.1.6
@@ -101,4 +101,5 @@ La pestaña Stock muestra cada propiedad como encabezado, seguido de sus product
 
 
 ## Jugadores en Stock desde 0.1.6
-Cada jugador conectado con su inventario cargado aparece como un lugar más: Jugador: nombre. Se cuentan sus productos y unidades, con Sin productos para inventarios vacíos. El anfitrión lee la copia del inventario que mantiene el juego. Si todavía no está disponible se omite hasta la siguiente consulta. La lectura remota debe validarse en cooperativo. Protocolo 4: ambos deben usar 0.1.6. Este alcance reemplaza las exclusiones de bolsillos de las versiones anteriores.
+Cada jugador conectado con su inventario cargado aparece como un lugar más: Jugador: nombre. Se cuentan sus productos y unidades, con Sin productos para inventarios vacíos. El anfitrión lee la copia del inventario que mantiene el juego. Si todavía no está disponible se omite hasta la siguiente consulta. La lectura remota debe validarse en cooperativo. Protocolo 4: ambos deben usar 0.1.6.
+
