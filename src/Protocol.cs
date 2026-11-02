@@ -3,7 +3,7 @@ namespace ScheduleIStats;
 public sealed class Packet
 {
     public string App { get; set; } = "ScheduleIStats";
-    public int Protocol { get; set; } = 3;
+    public int Protocol { get; set; } = 4;
     public string Kind { get; set; } = "";
     public string Nonce { get; set; } = "";
     public long RequestId { get; set; }
@@ -24,7 +24,7 @@ public static class Replica
 {
     public static LedgerData? Apply(LedgerData? existing, Packet p)
     {
-        if (p.App != "ScheduleIStats" || p.Protocol != 3 || p.Kind != "batch"
+        if (p.App != "ScheduleIStats" || p.Protocol != 4 || p.Kind != "batch"
             || p.LedgerId == null || p.LedgerId.Length != 32 || !p.LedgerId.All(Uri.IsHexDigit)
             || p.Sales == null || p.Sales.Count > 12 || p.Count < 0 || p.After < 0
             || p.After > p.Count || p.Sales.Count > p.Count - p.After || p.Sales.Any(s => !s.Valid())) return null;
@@ -39,3 +39,4 @@ public static class Replica
         return result;
     }
 }
+

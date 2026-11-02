@@ -16,11 +16,11 @@ public static class StockPlaces
         var pages = new List<StockPlacePage>();
         foreach (var place in lines.GroupBy(l => PlaceName(l.Location)).OrderBy(g => g.Key, StringComparer.Ordinal))
         {
-            var products = place.GroupBy(l => l.ProductId)
+            var products = place.Where(l => !l.EmptyPlace).GroupBy(l => l.ProductId)
                 .Select(g => new StockLine { ProductId = g.Key, Product = g.First().Product,
                     Location = place.Key, Quantity = g.Sum(l => l.Quantity) })
                 .OrderBy(l => l.Product, StringComparer.Ordinal).ToList();
-            int parts = (products.Count + 3) / 4;
+            int parts = Math.Max(1, (products.Count + 3) / 4);
             for (int i = 0; i < parts; i++) pages.Add(new StockPlacePage { Place = place.Key,
                 Total = products.Sum(l => l.Quantity), Part = i + 1, Parts = parts,
                 Items = products.Skip(i * 4).Take(4).ToList() });
@@ -30,6 +30,7 @@ public static class StockPlaces
 
     private static string PlaceName(string location)
     {
+        if (location.StartsWith("Jugador: ", StringComparison.Ordinal)) return location;
         int separator = location.IndexOf(" / ", StringComparison.Ordinal);
         return separator >= 0 ? location[..separator] : location;
     }

@@ -8,9 +8,11 @@ public sealed class StockLine
     public string Product { get; set; } = "";
     public string Location { get; set; } = "";
     public long Quantity { get; set; }
-    public bool Valid() => !string.IsNullOrEmpty(ProductId) && ProductId.Length <= 200
+    public bool EmptyPlace { get; set; }
+    public bool Valid() => ProductId != null && ProductId.Length <= 200
         && Product != null && Product.Length <= 200 && Location != null && Location.Length <= 300
-        && Quantity is > 0 and <= 1000000000;
+        && (EmptyPlace ? ProductId == "" && Product == "" && Quantity == 0 :
+            ProductId.Length > 0 && Quantity is > 0 and <= 1000000000);
 }
 
 public sealed class StockSnapshot
@@ -26,7 +28,7 @@ public static class StockTotals
     {
         var lines = input.Where(l => l.Valid()).GroupBy(l => (l.ProductId, l.Location))
             .Select(g => new StockLine { ProductId = g.Key.ProductId, Product = g.First().Product,
-                Location = g.Key.Location, Quantity = g.Sum(l => l.Quantity) })
+                Location = g.Key.Location, Quantity = g.Sum(l => l.Quantity), EmptyPlace = g.All(l => l.EmptyPlace) })
             .OrderBy(l => l.ProductId, StringComparer.Ordinal).ThenBy(l => l.Location, StringComparer.Ordinal).ToList();
         return new StockSnapshot { Revision = Ledger.Key(JsonSerializer.Serialize(lines, Ledger.Json)), CheckedUtc = checkedUtc, Lines = lines };
     }

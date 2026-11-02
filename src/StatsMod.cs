@@ -10,7 +10,7 @@ using Il2CppFishNet.Object;
 using Il2CppFishNet;
 
 
-[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Cravel", "0.1.5", "brunobianchi95")]
+[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Cravel", "0.1.6", "brunobianchi95")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace ScheduleIStats;
@@ -64,7 +64,7 @@ public sealed class StatsMod : MelonMod
             CaptureStatus = "Captura incompatible con esta versión";
             LoggerInstance.Error("No se pudo activar la captura: " + e);
         }
-        LoggerInstance.Msg("App Cravel v0.1.5 cargada. Abrí el teléfono dentro de una partida.");
+        LoggerInstance.Msg("App Cravel v0.1.6 cargada. Abrí el teléfono dentro de una partida.");
     }
 
     public override void OnUpdate()
@@ -207,6 +207,7 @@ internal static class SalePatch
         return __exception;
     }
 }
+
 
 
 

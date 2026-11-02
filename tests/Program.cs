@@ -43,7 +43,7 @@ packet.After=1; packet.Sales=new(){first};
 Assert(Replica.Apply(replica,packet)==null,"reject duplicate receipt and wrong sequence");
 packet.Sales=new(){second}; packet.Protocol=1;
 Assert(Replica.Apply(replica,packet)==null,"reject old network protocol");
-packet.Protocol=3; packet.Count=0;
+packet.Protocol=4; packet.Count=0;
 Assert(Replica.Apply(replica,packet)==null,"reject inconsistent total");
 var different=new Packet {Kind="batch",LedgerId=Guid.NewGuid().ToString("N"),Count=0,After=0};
 Assert(Replica.Apply(replica,different)?.Sales.Count==0,"switch save without merging histories");
@@ -72,7 +72,19 @@ var places=StockPlaces.Pages(new[]{
 Assert(places.Count==2 && places[0].Place=="Casa" && places[0].Items.Single().Quantity==15,"combine containers within the same place");
 Assert(places.Sum(p=>p.Items.Sum(l=>l.Quantity))==17,"place grouping preserves stock totals");
 Assert(StockPlaces.Pages(Array.Empty<StockLine>()).Count==0,"empty stock has no place pages");
+var playerStock=StockTotals.Create(new[]{
+    new StockLine{ProductId="og",Product="OG",Location="Casa / Estante",Quantity=5},
+    new StockLine{ProductId="og",Product="OG",Location="Jugador: Bruno",Quantity=8},
+    new StockLine{Location="Jugador: Otro / nombre",EmptyPlace=true}},DateTime.UtcNow);
+var playerPages=StockPlaces.Pages(playerStock.Lines);
+Assert(playerPages.Count==3 && playerPages.Single(p=>p.Place=="Jugador: Bruno").Total==8,"players remain separate from property stock");
+Assert(playerPages.Single(p=>p.Place=="Jugador: Otro / nombre").Items.Count==0,"empty player appears as a place and keeps full name");
+var pr=new StockReplica();
+var pp=new Packet{StockRevision=playerStock.Revision,StockCount=playerStock.Lines.Count,StockAfter=0,StockCheckedUtc=playerStock.CheckedUtc,StockLines=playerStock.Lines};
+Assert(pr.Apply(pp)?.Lines.Any(l=>l.EmptyPlace)==true,"empty player synchronizes with the stock snapshot");
+Assert(!new StockLine{EmptyPlace=true,Location="Jugador",Quantity=1}.Valid(),"empty-place marker cannot carry a quantity");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
+
 
 
 

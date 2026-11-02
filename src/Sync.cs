@@ -8,8 +8,8 @@ namespace ScheduleIStats;
 
 internal sealed class Sync
 {
-    private const string Announcement = "s1stats_v3";
-    private const string RequestKey = "s1stats_request_v3";
+    private const string Announcement = "s1stats_v4";
+    private const string RequestKey = "s1stats_request_v4";
     private readonly StatsMod mod;
     private string nonce = Guid.NewGuid().ToString("N");
     private float nextPoll, nextRequest, waitingSince;
@@ -80,10 +80,10 @@ internal sealed class Sync
                 Diagnostic("Anfitrión detectado; esperando abrir el historial");
                 return;
             }
-            string announcement = "0.1.5|" + mod.Data.Id;
+            string announcement = "0.1.6|" + mod.Data.Id;
             if (SteamMatchmaking.GetLobbyData(lobby, Announcement) != announcement)
                 SteamMatchmaking.SetLobbyData(lobby, Announcement, announcement);
-            Diagnostic($"Anfitrión anunciado · {count} jugadores · transporte de sala v3");
+            Diagnostic($"Anfitrión anunciado · {count} jugadores · transporte de sala v4");
             for (int i = 0; i < count; i++)
             {
                 var peer = SteamMatchmaking.GetLobbyMemberByIndex(lobby, i);
@@ -93,7 +93,7 @@ internal sealed class Sync
                 try
                 {
                     var p = JsonSerializer.Deserialize<Packet>(raw, Ledger.Json);
-                    if (p == null || p.App != "ScheduleIStats" || p.Protocol != 3 || p.Kind != "request" || p.Nonce.Length != 32) continue;
+                    if (p == null || p.App != "ScheduleIStats" || p.Protocol != 4 || p.Kind != "request" || p.Nonce.Length != 32) continue;
                     var data = mod.Data;
                     int after = p.LedgerId == data.Id && p.After >= 0 && p.After <= data.Sales.Count ? (int)p.After : 0;
                     var reply = new Packet { Kind = "batch", Nonce = p.Nonce, RequestId = p.RequestId, LedgerId = data.Id,
@@ -134,13 +134,13 @@ internal sealed class Sync
             return;
         }
         string marker = SteamMatchmaking.GetLobbyData(lobby, Announcement);
-        if (string.IsNullOrEmpty(marker) || !marker.StartsWith("0.1.5|", StringComparison.Ordinal))
+        if (string.IsNullOrEmpty(marker) || !marker.StartsWith("0.1.6|", StringComparison.Ordinal))
         {
-            Diagnostic($"Sala con {count} jugadores · el anfitrión aún no anuncia la versión 0.1.5");
-            mod.Status = "Esperando al anfitrión con el mod 0.1.5";
+            Diagnostic($"Sala con {count} jugadores · el anfitrión aún no anuncia la versión 0.1.6");
+            mod.Status = "Esperando al anfitrión con el mod 0.1.6";
             return;
         }
-        Diagnostic($"Anfitrión con mod detectado · {count} jugadores · transporte de sala v3");
+        Diagnostic($"Anfitrión con mod detectado · {count} jugadores · transporte de sala v4");
         if (now >= nextRequest)
         {
             requestId++;
@@ -178,7 +178,9 @@ internal sealed class Sync
         }
         if (now - waitingSince > 20) mod.Status = "Anfitrión detectado, pero sin respuesta al historial";
     }
-    private static string ReplyKey(ulong player) => "s1stats_reply_v3_" + player;
+    private static string ReplyKey(ulong player) => "s1stats_reply_v4_" + player;
 }
+
+
 
 

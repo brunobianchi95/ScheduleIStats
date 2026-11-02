@@ -73,7 +73,7 @@ public sealed class StatsApp : PhoneApp
         var data = mod.Data;
         if (data == null)
         {
-            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.5.\nLas ventas se registran desde la instalación.";
+            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.6.\nLas ventas se registran desde la instalación.";
             return;
         }
         int day = Il2CppScheduleOne.GameTime.TimeManager.InstanceExists ? Il2CppScheduleOne.GameTime.TimeManager.Instance.ElapsedDays : 0;
@@ -109,7 +109,7 @@ public sealed class StatsApp : PhoneApp
             if (stock == null)
             {
                 body.text = "Stock pendiente de actualización.\n" + (mod.Host ? mod.StockStatus : mod.Status) +
-                    "\n\nProductos terminados en contenedores de propiedades propias.\nNo incluye bolsillos ni producción en curso.";
+                    "\n\nProductos en propiedades propias y jugadores conectados.\nNo incluye producción en curso.";
                 page = 0;
             }
             else
@@ -122,7 +122,7 @@ public sealed class StatsApp : PhoneApp
                     var place = pages[page];
                     content = $"{place.Place} · {place.Total:N0} unidades" +
                         (place.Parts > 1 ? $" ({place.Part}/{place.Parts})" : "") + "\n\n" +
-                        string.Join("\n", place.Items.Select(l => $"• {l.Product}: {l.Quantity:N0} u."));
+                        (place.Items.Count == 0 ? "Sin productos." : string.Join("\n", place.Items.Select(l => $"• {l.Product}: {l.Quantity:N0} u.")));
                 }
                 body.text = $"Stock por lugar · lectura {stock.CheckedUtc.ToLocalTime():HH:mm:ss}\n\n" + content;
                 pageLabel.text = $"{page + 1}/{Math.Max(1, pages.Count)}";
@@ -131,7 +131,7 @@ public sealed class StatsApp : PhoneApp
         }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.5 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.6 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";
@@ -149,6 +149,7 @@ public sealed class StatsApp : PhoneApp
         return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
     }
 }
+
 
 
 
