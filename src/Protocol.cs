@@ -18,6 +18,7 @@ public sealed class Packet
     public int StockCount { get; set; }
     public DateTime StockCheckedUtc { get; set; }
     public List<StockLine> StockLines { get; set; } = new();
+    public List<DealerBalance>? DealerCash { get; set; }
 }
 
 public static class Replica

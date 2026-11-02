@@ -83,6 +83,18 @@ var pr=new StockReplica();
 var pp=new Packet{StockRevision=playerStock.Revision,StockCount=playerStock.Lines.Count,StockAfter=0,StockCheckedUtc=playerStock.CheckedUtc,StockLines=playerStock.Lines};
 Assert(pr.Apply(pp)?.Lines.Any(l=>l.EmptyPlace)==true,"empty player synchronizes with the stock snapshot");
 Assert(!new StockLine{EmptyPlace=true,Location="Jugador",Quantity=1}.Valid(),"empty-place marker cannot carry a quantity");
+var dealerLines=new[]{new StockLine{ProductId="og",Product="OG",Location="Camello: Benji",Quantity=10}};
+var balances=new List<DealerBalance>{new(){Id="benji",Name="Benji",Location="Camello: Benji",Cash=450}};
+var ds=StockTotals.Create(dealerLines,DateTime.UtcNow,balances);
+Assert(ds.Lines.Sum(l=>l.Quantity)==10 && ds.DealerCash!.Single().Cash==450,"dealer cash is separate from product quantities");
+var collected=StockTotals.Create(dealerLines,DateTime.UtcNow,new(){new(){Id="benji",Name="Benji",Location="Camello: Benji",Cash=0}});
+Assert(ds.Revision==collected.Revision && ds.CashRevision!=collected.CashRevision,"collecting cash refreshes UI without changing stock revision");
+var dp=new Packet{StockRevision=ds.Revision,StockCount=1,StockAfter=0,StockCheckedUtc=ds.CheckedUtc,StockLines=ds.Lines,DealerCash=ds.DealerCash};
+Assert(new StockReplica().Apply(dp)?.DealerCash?.Single().Cash==450,"dealer balance accompanies stock synchronization");
+dp.DealerCash=new(){new(){Id="benji",Name="Benji",Location="Camello: Benji",Cash=-1}};
+Assert(new StockReplica().Apply(dp)==null,"reject negative dealer cash");
+dp.DealerCash=new(){balances[0],balances[0]};
+Assert(new StockReplica().Apply(dp)==null,"reject duplicate dealer balances");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
 
 

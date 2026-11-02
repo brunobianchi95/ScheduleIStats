@@ -3,6 +3,7 @@ using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Storage;
 using Il2CppScheduleOne.PlayerScripts;
 using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Economy;
 
 namespace ScheduleIStats;
 
@@ -49,7 +50,27 @@ internal static class StockReader
             }
             if (lines.Count == before) lines.Add(new StockLine { Location = location, EmptyPlace = true });
         }
-        return StockTotals.Create(lines, DateTime.UtcNow);
+        var cash = new List<DealerBalance>();
+        var dealers = Dealer.AllPlayerDealers;
+        if (dealers != null) for (int i = 0; i < dealers.Count; i++)
+        {
+            var dealer = dealers[i];
+            if (dealer == null || !dealer.IsRecruited) continue;
+            string location = "Camello: " + dealer.FullName;
+            int before = lines.Count;
+            if (dealer.ItemSlots != null) for (int j = 0; j < dealer.ItemSlots.Count; j++)
+                AddSlot(dealer.ItemSlots[j], location, lines, seenSlots);
+            if (dealer.overflowSlots != null) for (int j = 0; j < dealer.overflowSlots.Length; j++)
+                AddSlot(dealer.overflowSlots[j], location, lines, seenSlots);
+            if (lines.Count == before) lines.Add(new StockLine { Location = location, EmptyPlace = true });
+            if (float.IsFinite(dealer.Cash) && dealer.Cash >= 0)
+            {
+                var balance = new DealerBalance { Id = dealer.ID, Name = dealer.FullName, Location = location,
+                    Cash = Math.Round((decimal)dealer.Cash, 2) };
+                if (balance.Valid()) cash.Add(balance);
+            }
+        }
+        return StockTotals.Create(lines, DateTime.UtcNow, cash);
     }
 
     private static void AddSlot(ItemSlot slot, string location, List<StockLine> lines, HashSet<IntPtr> seenSlots)

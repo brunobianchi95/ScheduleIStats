@@ -1,14 +1,11 @@
-# Validación de Cravel 0.1.6
+# Validación de CS SAS 0.1.8
 
-Stock ahora incluye cada jugador conectado y cargado como un lugar: Jugador: nombre. Se cuentan únicamente sus productos terminados y las unidades del contenido de paquetes, junto al stock de propiedades. El anfitrión consulta los inventarios; para su propio jugador usa PlayerInventory.GetAllInventorySlots y para invitados la copia de Player._inventory que mantiene el juego en el servidor. Si un inventario todavía no está disponible, se omite hasta una consulta posterior.
+Compilación x64 sin advertencias ni errores. 43 comprobaciones automáticas correctas en modo de globalización invariable. Incluyen historial, secuencias, stock por lugar/jugador, inventarios vacíos, separación efectivo/unidades, cambio de revisión de efectivo al cobrar, transporte del saldo y rechazo de saldos negativos o duplicados.
 
-Un jugador sin productos aparece como un lugar vacío con Sin productos. Los nombres duplicados reciben un sufijo para no combinar inventarios. Al desconectarse, se elimina de la siguiente instantánea al desaparecer de PlayerList.
+Dealer.AllPlayerDealers, IsRecruited, ItemSlots, overflowSlots y Cash se comprobaron contra los ensamblados locales del juego. La API de referencia documenta Cash como efectivo que mantiene el dealer. El mod solo lee esos miembros.
 
-- Compilación Release x64: correcta sin advertencias ni errores.
-- 38 comprobaciones automáticas correctas: separación jugador/propiedad, jugador vacío, preservación del nombre y transferencia del marcador de inventario vacío, además de las comprobaciones anteriores.
-- Protocolo 4: ambas PCs deben instalar 0.1.6.
-- Conserva historial de ventas, carpeta UserData/ScheduleIStats, nombre visible Cravel, español y dólares sin centavos.
+El ZIP de esta publicación contiene la misma DLL de la prueba local 0.1.8 instalada previamente. Algunas etiquetas de diagnóstico conservan la mención Vista local; no indican una versión distinta.
 
-Pendiente de validación en el juego: actualización efectiva de la copia de inventario de invitados, movimientos entre jugadores y estantes, desconexión/reconexión y visualización del stock recibido. Los inventarios remotos dependen de la copia que sincroniza el propio juego. No se comprobó esta versión en una partida cooperativa real.
+Pendiente: confirmación visual del diseño con scroll y engranaje, comparación en juego de productos y efectivo de un camello, actualización de inventarios de invitados y sincronización real entre dos PCs. Los tests no ejecutan el motor Unity ni una sesión cooperativa.
 
-Prueba: ambos actualizan con el juego cerrado; comparan una cantidad conocida en el inventario de cada jugador con su entrada Jugador: nombre. Mover productos entre un jugador y un estante, esperar la consulta (5 segundos) y la sincronización. Vaciar el inventario debe dejar Sin productos; desconectarse debe retirar su entrada. No incluye inventario de distribuidores, vehículos ni producción en curso.
+Los datos opcionales de efectivo se agregan al protocolo base 4 sin modificar el cálculo de revisión de las líneas de stock. El anfitrión necesita 0.1.8 para consultar camellos y saldos; los invitados necesitan 0.1.8 para mostrar el saldo en su interfaz.

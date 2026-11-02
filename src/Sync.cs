@@ -105,6 +105,7 @@ internal sealed class Sync
                         int stockAfter = p.StockRevision == stock.Revision && p.StockAfter >= 0 && p.StockAfter <= stock.Lines.Count ? p.StockAfter : 0;
                         reply.StockRevision = stock.Revision; reply.StockAfter = stockAfter;
                         reply.StockCount = stock.Lines.Count; reply.StockCheckedUtc = stock.CheckedUtc;
+                        reply.DealerCash = stock.DealerCash;
                         reply.StockLines = stock.Lines.Skip(stockAfter).Take(8).ToList();
                     }
                     string response = JsonSerializer.Serialize(reply, Ledger.Json);
