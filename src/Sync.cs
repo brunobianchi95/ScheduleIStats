@@ -80,7 +80,7 @@ internal sealed class Sync
                 Diagnostic("Anfitrión detectado; esperando abrir el historial");
                 return;
             }
-            string announcement = "0.1.4|" + mod.Data.Id;
+            string announcement = "0.1.5|" + mod.Data.Id;
             if (SteamMatchmaking.GetLobbyData(lobby, Announcement) != announcement)
                 SteamMatchmaking.SetLobbyData(lobby, Announcement, announcement);
             Diagnostic($"Anfitrión anunciado · {count} jugadores · transporte de sala v3");
@@ -134,10 +134,10 @@ internal sealed class Sync
             return;
         }
         string marker = SteamMatchmaking.GetLobbyData(lobby, Announcement);
-        if (string.IsNullOrEmpty(marker) || !marker.StartsWith("0.1.4|", StringComparison.Ordinal))
+        if (string.IsNullOrEmpty(marker) || !marker.StartsWith("0.1.5|", StringComparison.Ordinal))
         {
-            Diagnostic($"Sala con {count} jugadores · el anfitrión aún no anuncia la versión 0.1.4");
-            mod.Status = "Esperando al anfitrión con el mod 0.1.4";
+            Diagnostic($"Sala con {count} jugadores · el anfitrión aún no anuncia la versión 0.1.5");
+            mod.Status = "Esperando al anfitrión con el mod 0.1.5";
             return;
         }
         Diagnostic($"Anfitrión con mod detectado · {count} jugadores · transporte de sala v3");
@@ -180,4 +180,5 @@ internal sealed class Sync
     }
     private static string ReplyKey(ulong player) => "s1stats_reply_v3_" + player;
 }
+
 

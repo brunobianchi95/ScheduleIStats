@@ -1,13 +1,7 @@
-# Validación de Cravel 0.1.4
+# Validación de Cravel 0.1.5
 
-- Nombre visible de la app y el ícono: Cravel. El identificador interno, el archivo ScheduleIStats.dll y la ruta de historial se mantienen para conservar las ventas anteriores.
-- Nueva pestaña Stock: productos terminados en contenedores colocados dentro de propiedades propias, consultados por el anfitrión cada cinco segundos. Cuenta unidades del contenido, no paquetes. Agrupa producto y ubicación.
-- No incluye bolsillos de jugadores, distribuidores, vehículos ni producción en curso. Solo las entidades PlaceableStorageEntity de propiedades propias que están cargadas.
-- Stock sincronizado por páginas mediante datos de la sala, protocolo 3. Los invitados publican una nueva instantánea solo después de recibir todas sus páginas. La revisión depende del contenido, de forma que las consultas periódicas no invalidan las transferencias que aún están en curso.
-- Una instantánea vacía elimina el stock anterior; el panel muestra la hora de última lectura.
-- Compilación Release x64 sin errores ni advertencias.
-- 31 comprobaciones automáticas correctas, incluidas agregación por producto/ubicación, revisión estable, páginas parciales/completas, rechazo de páginas repetidas, actualización a stock vacío y cantidades negativas.
+Stock organizado por propiedad: un encabezado por lugar y productos con sus unidades debajo. Se suman los productos iguales de los distintos contenedores de la misma propiedad. Cada página pertenece a un solo lugar; cuando hay más de cuatro productos, se indica la parte del lugar (1/2, 2/2, etc.).
 
-Pendiente de validación en el juego: disposición de cinco pestañas, alcance del lector sobre las propiedades de la partida, unidades de bolsas/frascos/ladrillos y llegada del stock a la otra PC. La compilación y las comprobaciones de datos no reemplazan esa prueba.
+Compilación correcta sin advertencias ni errores y 34 comprobaciones automáticas correctas. Se verifica la suma entre contenedores, la conservación de los totales y el stock vacío.
 
-Prueba sugerida: ambos instalan 0.1.4; el anfitrión coloca una cantidad conocida en un estante de una propiedad propia; comparan Stock en ambas PCs, retiran parte y luego vacían el contenedor, esperando la siguiente consulta y sincronización. El filtro Hoy/Todo afecta a ventas; Stock siempre representa la consulta actual.
+Conserva las funciones y el alcance de stock de 0.1.4: productos terminados en contenedores colocados dentro de propiedades propias. No incluye bolsillos, distribuidores, vehículos ni producción en curso. Consulta del anfitrión cada cinco segundos y sincronización a invitados. Ambos deben actualizar a 0.1.5. Pendiente de comprobar visualmente la nueva disposición en el juego.

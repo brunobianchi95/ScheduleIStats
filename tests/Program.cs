@@ -65,6 +65,13 @@ sp=new Packet{StockRevision=emptyStock.Revision,StockCount=0,StockAfter=0,StockC
 Assert(sr.Apply(sp)?.Lines.Count==0,"empty stock replaces previous inventory");
 sp.StockCount=1; sp.StockLines=new(){new StockLine{ProductId="bad",Product="Bad",Location="Casa",Quantity=-1}};
 Assert(sr.Apply(sp)==null,"reject negative stock quantity");
+var places=StockPlaces.Pages(new[]{
+    new StockLine{ProductId="og",Product="OG",Location="Casa / Estante A",Quantity=5},
+    new StockLine{ProductId="og",Product="OG",Location="Casa / Estante B",Quantity=10},
+    new StockLine{ProductId="og",Product="OG",Location="Depósito / Estante A",Quantity=2}});
+Assert(places.Count==2 && places[0].Place=="Casa" && places[0].Items.Single().Quantity==15,"combine containers within the same place");
+Assert(places.Sum(p=>p.Items.Sum(l=>l.Quantity))==17,"place grouping preserves stock totals");
+Assert(StockPlaces.Pages(Array.Empty<StockLine>()).Count==0,"empty stock has no place pages");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
 
 

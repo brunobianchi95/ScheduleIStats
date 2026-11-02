@@ -73,7 +73,7 @@ public sealed class StatsApp : PhoneApp
         var data = mod.Data;
         if (data == null)
         {
-            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.4.\nLas ventas se registran desde la instalación.";
+            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.5.\nLas ventas se registran desde la instalación.";
             return;
         }
         int day = Il2CppScheduleOne.GameTime.TimeManager.InstanceExists ? Il2CppScheduleOne.GameTime.TimeManager.Instance.ElapsedDays : 0;
@@ -114,17 +114,24 @@ public sealed class StatsApp : PhoneApp
             }
             else
             {
-                var lines = stock.Lines.OrderBy(l => l.Product, StringComparer.Ordinal).ThenBy(l => l.Location, StringComparer.Ordinal).ToList();
-                page = Math.Clamp(page, 0, Math.Max(0, (lines.Count - 1) / 3));
-                body.text = $"Stock actual · {lines.Sum(l => l.Quantity):N0} unidades\nÚltima lectura: {stock.CheckedUtc.ToLocalTime():HH:mm:ss}\n\n" +
-                    (lines.Count == 0 ? "Sin productos en los contenedores consultados." :
-                    string.Join("\n", lines.Skip(page * 3).Take(3).Select(l => $"{l.Product} · {l.Quantity:N0} u.\n{l.Location}"))) +
-                    "\n\nPropiedades propias · sin bolsillos ni producción en curso.";
+                var pages = StockPlaces.Pages(stock.Lines);
+                page = Math.Clamp(page, 0, Math.Max(0, pages.Count - 1));
+                string content = "Sin productos en los contenedores consultados.";
+                if (pages.Count > 0)
+                {
+                    var place = pages[page];
+                    content = $"{place.Place} · {place.Total:N0} unidades" +
+                        (place.Parts > 1 ? $" ({place.Part}/{place.Parts})" : "") + "\n\n" +
+                        string.Join("\n", place.Items.Select(l => $"• {l.Product}: {l.Quantity:N0} u."));
+                }
+                body.text = $"Stock por lugar · lectura {stock.CheckedUtc.ToLocalTime():HH:mm:ss}\n\n" + content;
+                pageLabel.text = $"{page + 1}/{Math.Max(1, pages.Count)}";
+                return;
             }
         }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.4 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.5 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";
@@ -142,6 +149,7 @@ public sealed class StatsApp : PhoneApp
         return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
     }
 }
+
 
 
 
