@@ -9,8 +9,8 @@ public sealed class StatsApp : PhoneApp
 {
     public static StatsApp? Current { get; private set; }
     protected override string AppName => "ScheduleIStats";
-    protected override string AppTitle => "Estadísticas";
-    protected override string IconLabel => "Estadísticas";
+    protected override string AppTitle => "Cravel";
+    protected override string IconLabel => "Cravel";
     protected override string IconFileName => "";
     protected override EOrientation Orientation => EOrientation.Horizontal;
     private static Sprite? icon;
@@ -24,16 +24,16 @@ public sealed class StatsApp : PhoneApp
     {
         Current = this;
         var root = UIFactory.Panel("Estadisticas", container.transform, new Color(.055f, .075f, .09f), fullAnchor: true);
-        var title = UIFactory.Text("Titulo", "ESTADÍSTICAS  /  VENTAS", root.transform, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
+        var title = UIFactory.Text("Titulo", "CRAVEL  /  TU NEGOCIO", root.transform, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
         Place(title.rectTransform, .04f, .84f, .96f, .95f);
         title.color = new Color(.40f, .89f, .72f);
         status = UIFactory.Text("Estado", "Cargando…", root.transform, 13);
         Place(status.rectTransform, .04f, .77f, .96f, .84f);
-        string[] tabs = { "Resumen", "Productos", "Historial", "Sincronización" };
+        string[] tabs = { "Resumen", "Productos", "Historial", "Stock", "Sincronización" };
         for (int i = 0; i < tabs.Length; i++)
         {
             int index = i;
-            Button(root.transform, tabs[i], .04f + i * .23f, .65f, .25f + i * .23f, .75f,
+            Button(root.transform, tabs[i], .04f + i * .184f, .65f, .213f + i * .184f, .75f,
                 () => { tab = index; page = 0; Refresh(); });
         }
         body = UIFactory.Text("Contenido", "", root.transform, 16);
@@ -73,7 +73,7 @@ public sealed class StatsApp : PhoneApp
         var data = mod.Data;
         if (data == null)
         {
-            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.3.\nLas ventas se registran desde la instalación.";
+            body.text = $"{mod.Status}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\n{mod.CaptureStatus}\n\nAmbas PCs deben tener la versión 0.1.4.\nLas ventas se registran desde la instalación.";
             return;
         }
         int day = Il2CppScheduleOne.GameTime.TimeManager.InstanceExists ? Il2CppScheduleOne.GameTime.TimeManager.Instance.ElapsedDays : 0;
@@ -103,9 +103,28 @@ public sealed class StatsApp : PhoneApp
                 $"D{s.Day + 1} {s.Time / 100:00}:{s.Time % 100:00} · {s.Customer} · {Money(s.Total)}\n" +
                 string.Join(", ", s.Lines.Select(l => $"{l.Quantity} × {l.Product}")))) + (sales.Count == 0 ? "Todavía no hay ventas registradas." : "");
         }
+        else if (tab == 3)
+        {
+            var stock = mod.Stock;
+            if (stock == null)
+            {
+                body.text = "Stock pendiente de actualización.\n" + (mod.Host ? mod.StockStatus : mod.Status) +
+                    "\n\nProductos terminados en contenedores de propiedades propias.\nNo incluye bolsillos ni producción en curso.";
+                page = 0;
+            }
+            else
+            {
+                var lines = stock.Lines.OrderBy(l => l.Product, StringComparer.Ordinal).ThenBy(l => l.Location, StringComparer.Ordinal).ToList();
+                page = Math.Clamp(page, 0, Math.Max(0, (lines.Count - 1) / 3));
+                body.text = $"Stock actual · {lines.Sum(l => l.Quantity):N0} unidades\nÚltima lectura: {stock.CheckedUtc.ToLocalTime():HH:mm:ss}\n\n" +
+                    (lines.Count == 0 ? "Sin productos en los contenedores consultados." :
+                    string.Join("\n", lines.Skip(page * 3).Take(3).Select(l => $"{l.Product} · {l.Quantity:N0} u.\n{l.Location}"))) +
+                    "\n\nPropiedades propias · sin bolsillos ni producción en curso.";
+            }
+        }
         else
         {
-            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.3 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
+            body.text = $"{(mod.Host ? "Anfitrión · registro principal" : "Invitado · copia del anfitrión")}\n{mod.NetworkStatus}\nEnviados: {mod.SyncSent} · Recibidos: {mod.SyncReceived}\nVentas: {data.Sales.Count} · Entregas observadas: {mod.DeliveriesObserved}\n{mod.CaptureStatus}\n\nVersión 0.1.4 · Ambas PCs deben actualizar.\nNo importa ventas anteriores a la instalación.";
             page = 0;
         }
         pageLabel.text = $"Pág. {page + 1}";
@@ -123,6 +142,7 @@ public sealed class StatsApp : PhoneApp
         return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
     }
 }
+
 
 
 

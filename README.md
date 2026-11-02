@@ -1,17 +1,17 @@
-# Schedule I Estadísticas
+# Cravel
 
-Versión **0.1.3 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
+Versión **0.1.4 experimental**. App en español dentro del teléfono para registrar ventas y consultar el historial compartido de una partida cooperativa.
 
 Compilada contra **Schedule I 0.4.7f12, Windows x64, IL2CPP**, con **MelonLoader 0.7.3** y **S1API 3.2.2**. No usar esta DLL en la rama Mono. El anfitrión y los invitados que quieran consultar estadísticas deben instalar el mismo paquete.
 
 ## Descargar e instalar
 
-1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **ScheduleIStats-v0.1.3-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
+1. En [Releases](https://github.com/brunobianchi95/ScheduleIStats/releases), descargar **Cravel-v0.1.4-IL2CPP.zip**. El ZIP de código fuente de GitHub no es el instalador.
 2. Cerrar Schedule I. Tener MelonLoader 0.7.3 instalado en ambas PCs.
 3. En Steam → Schedule I → Propiedades → Archivos instalados → Explorar.
 4. Extraer el ZIP y copiar **Mods** y **Plugins** dentro de esa carpeta. Si ya hay una versión de S1API, usar una sola instalación compatible: no dejar DLL antiguas duplicadas. Conservar una copia de las dependencias anteriores antes de reemplazarlas.
 5. Abrir el juego desde Steam. El anfitrión carga la partida y el invitado se une como siempre.
-6. Abrir el teléfono y elegir **Estadísticas**.
+6. Abrir el teléfono y elegir **Cravel**.
 
 El ZIP incluye el mod y el paquete oficial S1API 3.2.2 (MIT). El loader de S1API selecciona la variante adecuada; nuestro mod solo soporta IL2CPP. No incluye archivos propietarios del juego. No requiere servidor dedicado, cuenta adicional, puertos manuales ni servicios web.
 
@@ -29,10 +29,10 @@ Si falla, conservar el archivo `MelonLoader/Latest.log` y describir cuál de est
 
 ## Qué incluye
 
-- App con ícono propio y pestañas **Resumen, Productos, Historial y Sincronización**.
+- App con ícono propio y pestañas **Resumen, Productos, Historial, Stock y Sincronización**.
 - Ingresos, unidades, número de operaciones y precio promedio por producto; filtro Hoy/Todo y paginación.
 - Captura en el anfitrión del procesamiento de entregas del juego. Los invitados consultan la copia sincronizada; no envían ventas inventadas al registro.
-- Sincronización incremental mediante datos de la sala de Steam (protocolo 2). Los invitados publican solicitudes en sus datos de miembro y el propietario publica las respuestas en los datos de sala. Reintentos y recuperación por secuencia al reconectar.
+- Sincronización incremental mediante datos de la sala de Steam (protocolo 3). Los invitados publican solicitudes en sus datos de miembro y el propietario publica las respuestas en los datos de sala. Reintentos y recuperación por secuencia al reconectar.
 - Historial separado por ruta de partida; escritura mediante archivo temporal y copia `.bak` del estado anterior.
 
 ## Datos y límites de esta prueba
@@ -84,3 +84,13 @@ Mod comunitario no oficial, sin afiliación con TVGS ni Valve.
 
 
 
+
+
+
+## Stock en Cravel 0.1.4
+
+La pestaña Stock consulta cada cinco segundos los productos terminados en contenedores colocados (PlaceableStorageEntity) de propiedades propias cargadas por el anfitrión. Agrupa producto y ubicación (propiedad / nombre del contenedor), suma las unidades contenidas en los paquetes y evita contar dos veces un mismo slot.
+
+No incluye bolsillos de jugadores, inventario de distribuidores, vehículos, producción en curso ni contenedores que no sean de ese tipo. La pantalla indica la hora de la última lectura; los invitados reciben la última consulta completa del anfitrión. Los datos viajan en páginas para no exceder el límite del transporte de sala.
+
+Ambos deben instalar 0.1.4, porque el protocolo de sincronización pasa a 3. El historial de ventas existente y la carpeta UserData/ScheduleIStats se conservan. El archivo del mod sigue llamándose Mods/ScheduleIStats.dll para reemplazar la versión anterior sin duplicarla; el nombre visible de la app es Cravel.

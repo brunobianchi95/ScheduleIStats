@@ -43,11 +43,29 @@ packet.After=1; packet.Sales=new(){first};
 Assert(Replica.Apply(replica,packet)==null,"reject duplicate receipt and wrong sequence");
 packet.Sales=new(){second}; packet.Protocol=1;
 Assert(Replica.Apply(replica,packet)==null,"reject old network protocol");
-packet.Protocol=2; packet.Count=0;
+packet.Protocol=3; packet.Count=0;
 Assert(Replica.Apply(replica,packet)==null,"reject inconsistent total");
 var different=new Packet {Kind="batch",LedgerId=Guid.NewGuid().ToString("N"),Count=0,After=0};
 Assert(Replica.Apply(replica,different)?.Sales.Count==0,"switch save without merging histories");
 Assert(replica!.Sales.Count==1,"rejected packets do not mutate local history");
+var stock=StockTotals.Create(new[]{new StockLine{ProductId="og",Product="OG",Location="Casa / Estante",Quantity=5},
+    new StockLine{ProductId="og",Product="OG",Location="Casa / Estante",Quantity=10},
+    new StockLine{ProductId="og",Product="OG",Location="Depósito / Estante",Quantity=2}},DateTime.UtcNow);
+Assert(stock.Lines.Count==2 && stock.Lines.Sum(l=>l.Quantity)==17,"stock aggregates by product and location");
+var sameStock=StockTotals.Create(stock.Lines.AsEnumerable().Reverse(),DateTime.UtcNow.AddSeconds(5));
+Assert(sameStock.Revision==stock.Revision,"stable stock revision across scans and ordering");
+var sr=new StockReplica();
+var sp=new Packet{StockRevision=stock.Revision,StockCount=2,StockAfter=0,StockCheckedUtc=stock.CheckedUtc,StockLines=stock.Lines.Take(1).ToList()};
+Assert(sr.Apply(sp)==null && sr.Offset==1,"partial stock remains unpublished");
+sp.StockAfter=1; sp.StockLines=stock.Lines.Skip(1).ToList();
+Assert(sr.Apply(sp)?.Lines.Sum(l=>l.Quantity)==17,"stock pages assemble complete snapshot");
+Assert(sr.Apply(sp)==null && sr.Offset==2,"stock page replay is rejected");
+var emptyStock=StockTotals.Create(Array.Empty<StockLine>(),DateTime.UtcNow);
+sp=new Packet{StockRevision=emptyStock.Revision,StockCount=0,StockAfter=0,StockCheckedUtc=emptyStock.CheckedUtc};
+Assert(sr.Apply(sp)?.Lines.Count==0,"empty stock replaces previous inventory");
+sp.StockCount=1; sp.StockLines=new(){new StockLine{ProductId="bad",Product="Bad",Location="Casa",Quantity=-1}};
+Assert(sr.Apply(sp)==null,"reject negative stock quantity");
 Console.WriteLine($"{checks} checks passed. Test files: {folder}");
+
 
 

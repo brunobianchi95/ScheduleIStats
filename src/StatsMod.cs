@@ -10,7 +10,7 @@ using Il2CppFishNet.Object;
 using Il2CppFishNet;
 
 
-[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Schedule I Estadísticas", "0.1.3", "brunobianchi95")]
+[assembly: MelonInfo(typeof(ScheduleIStats.StatsMod), "Cravel", "0.1.4", "brunobianchi95")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace ScheduleIStats;
@@ -25,6 +25,9 @@ public sealed class StatsMod : MelonMod
     public int SyncSent { get; set; }
     public int SyncReceived { get; set; }
     public int DeliveriesObserved { get; set; }
+    public StockSnapshot? Stock { get; internal set; }
+    public string StockStatus { get; private set; } = "Esperando el stock del anfitrión";
+    private float nextStockScan;
     public bool Loaded => LoadManager.InstanceExists && LoadManager.Instance.IsGameLoaded;
     public bool Host => Loaded && (InstanceFinder.IsServer ||
         (Il2CppScheduleOne.Networking.Lobby.InstanceExists && Il2CppScheduleOne.Networking.Lobby.Instance.IsHost));
@@ -61,7 +64,7 @@ public sealed class StatsMod : MelonMod
             CaptureStatus = "Captura incompatible con esta versión";
             LoggerInstance.Error("No se pudo activar la captura: " + e);
         }
-        LoggerInstance.Msg("App Estadísticas v0.1.3 cargada. Abrí el teléfono dentro de una partida.");
+        LoggerInstance.Msg("App Cravel v0.1.4 cargada. Abrí el teléfono dentro de una partida.");
     }
 
     public override void OnUpdate()
@@ -72,7 +75,7 @@ public sealed class StatsMod : MelonMod
         {
             if (!Loaded)
             {
-                if (wasLoaded) { Data = null; path = null; diskFailed = false; sync?.Reset(); }
+                if (wasLoaded) { Data = null; Stock = null; path = null; diskFailed = false; sync?.Reset(); }
                 wasLoaded = false;
                 Status = "Esperando una partida…";
                 StatsApp.Current?.Refresh();
@@ -87,6 +90,12 @@ public sealed class StatsMod : MelonMod
             // Server authority may become ready after IsGameLoaded. Retry instead
             // of permanently remaining a client with no ledger.
             if (Host && Data == null && !diskFailed) OpenHostLedger();
+            if (Host && UnityEngine.Time.unscaledTime >= nextStockScan)
+            {
+                nextStockScan = UnityEngine.Time.unscaledTime + 5;
+                try { Stock = StockReader.Read(); StockStatus = "Stock consultado en el anfitrión"; }
+                catch (Exception e) { StockStatus = "No se pudo leer el stock; revisá el registro"; LoggerInstance.Warning("Stock: " + e); }
+            }
             sync?.Tick();
             StatsApp.Current?.Refresh();
         }
@@ -198,6 +207,8 @@ internal static class SalePatch
         return __exception;
     }
 }
+
+
 
 
 

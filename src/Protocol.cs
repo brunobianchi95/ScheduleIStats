@@ -3,7 +3,7 @@ namespace ScheduleIStats;
 public sealed class Packet
 {
     public string App { get; set; } = "ScheduleIStats";
-    public int Protocol { get; set; } = 2;
+    public int Protocol { get; set; } = 3;
     public string Kind { get; set; } = "";
     public string Nonce { get; set; } = "";
     public long RequestId { get; set; }
@@ -13,13 +13,18 @@ public sealed class Packet
     public string Name { get; set; } = "";
     public DateTime StartedUtc { get; set; }
     public List<Sale> Sales { get; set; } = new();
+    public string StockRevision { get; set; } = "";
+    public int StockAfter { get; set; }
+    public int StockCount { get; set; }
+    public DateTime StockCheckedUtc { get; set; }
+    public List<StockLine> StockLines { get; set; } = new();
 }
 
 public static class Replica
 {
     public static LedgerData? Apply(LedgerData? existing, Packet p)
     {
-        if (p.App != "ScheduleIStats" || p.Protocol != 2 || p.Kind != "batch"
+        if (p.App != "ScheduleIStats" || p.Protocol != 3 || p.Kind != "batch"
             || p.LedgerId == null || p.LedgerId.Length != 32 || !p.LedgerId.All(Uri.IsHexDigit)
             || p.Sales == null || p.Sales.Count > 12 || p.Count < 0 || p.After < 0
             || p.After > p.Count || p.Sales.Count > p.Count - p.After || p.Sales.Any(s => !s.Valid())) return null;
